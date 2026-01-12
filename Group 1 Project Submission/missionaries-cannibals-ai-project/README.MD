@@ -52,16 +52,18 @@ assets/               → Screenshots
 ```
 
 ### Group Members
-- Fouad Abdulhakeem
-- I
-- J
-- E
-- OJ
-- KJ
-- JK
-- IKJ
-- AW
-- JJ
-- JS
-- FR
+- Fouad Abdulhakeem - 20233277
+- Einstein Dokpesi - 20233068
+- Jad Chouaib - 20233011
+- Oladipupo Oyewobi Benedict - 20233037
+- Onogbeye Joseph - 20233502
+- Okopido Imeobong - 20233418
+- Hassan Kalili - 20233491
+- Nweke Okechukwu - 20233357
+- Oyiborhoro Samuel - 20233321
+- Michael Afegbua - 20231148
+- Abdulaziz Abubakar Sayyadi - 20233050
+- Metu Lotana - 20231056
+
+
 

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Red Donkey Puzzle — A* Solver</title>
+<style>
+ body{text-align:center;font-family:Arial}
+ canvas{border:3px solid black}
+</style>
+</head>
+<body>
+
+<h2>Red Donkey Puzzle — A* Solver</h2>
+<button onclick="solve()">Solve using A*</button>
+<canvas id="board" width="400" height="500"></canvas>
+<p id="status"></p>
+
+<script>
+const ROWS=5,COLS=4,CELL=100,EXIT={x:1,y:4};
+const ctx=document.getElementById("board").getContext("2d");
+
+class Block{
+ constructor(id,x,y,w,h,c){this.id=id;this.x=x;this.y=y;this.w=w;this.h=h;this.c=c;}
+ copy(){return new Block(this.id,this.x,this.y,this.w,this.h,this.c);}
+ cells(){let r=[];for(let dx=0;dx<this.w;dx++)for(let dy=0;dy<this.h;dy++)r.push({x:this.x+dx,y:this.y+dy});return r;}
+}
+
+function clone(b){return b.map(x=>x.copy());}
+function key(b){return b.map(x=>`${x.id}:${x.x},${x.y}`).sort().join("|");}
+function isGoal(b){let r=b.find(x=>x.id==="R");return r.x===EXIT.x&&r.y===EXIT.y;}
+function h(b){let r=b.find(x=>x.id==="R");return Math.abs(r.x-EXIT.x)+Math.abs(r.y-EXIT.y);}
+function occ(b,i){let s=new Set();b.forEach(x=>{if(x!==i)x.cells().forEach(c=>s.add(c.x+","+c.y));});return s;}
+
+function moves(b){
+ let m=[];
+ b.forEach((x,i)=>{
+  [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
+   let nx=x.x+d[0],ny=x.y+d[1],ok=true,o=occ(b,x);
+   for(let c of x.cells()){
+    let xx=nx+(c.x-x.x),yy=ny+(c.y-x.y);
+    if(xx<0||xx>=COLS||yy<0||yy>=ROWS||o.has(xx+","+yy))ok=false;
+   }
+   if(ok)m.push([i,d[0],d[1]]);
+  });
+ });
+ return m;
+}
+function apply(b,m){let n=clone(b);n[m[0]].x+=m[1];n[m[0]].y+=m[2];return n;}
+
+let start=[
+ new Block("A",0,0,1,2,"gold"),
+ new Block("B",1,0,1,2,"gold"),
+ new Block("C",2,0,1,2,"gold"),
+ new Block("D",3,0,1,2,"gold"),
+ new Block("E",0,2,1,1,"cyan"),
+ new Block("F",3,2,1,1,"cyan"),
+ new Block("G",0,3,1,1,"cyan"),
+ new Block("H",3,3,1,1,"cyan"),
+ new Block("I",1,3,1,1,"cyan"),
+ new Block("J",2,3,1,1,"cyan"),
+ new Block("R",1,2,2,1,"red"),
+];
+
+function draw(b){
+ ctx.clearRect(0,0,400,500);
+ ctx.fillStyle="#ddd";ctx.fillRect(EXIT.x*CELL,EXIT.y*CELL,2*CELL,CELL);
+ b.forEach(x=>{
+  ctx.fillStyle=x.c;ctx.fillRect(x.x*CELL,x.y*CELL,x.w*CELL,x.h*CELL);
+  ctx.strokeRect(x.x*CELL,x.y*CELL,x.w*CELL,x.h*CELL);
+ });
+}
+draw(start);
+
+function animate(p){
+ let i=0;let t=setInterval(()=>{if(i>=p.length){clearInterval(t);return;}draw(p[i]);i++;},350);
+}
+
+function solve(){
+ let t0=performance.now();
+ let open=[{s:clone(start),g:0,p:null}];
+ let best=new Map(); best.set(key(start),0);
+ let exp=0;
+
+ while(open.length){
+  open.sort((a,b)=>(a.g+h(a.s))-(b.g+h(b.s)));
+  let c=open.shift();exp++;
+
+  if(isGoal(c.s)){
+   let path=[],n=c;while(n){path.push(n.s);n=n.p;}
+   let t1=performance.now();
+   document.getElementById("status").innerText=
+    `A* → States: ${exp}, Time: ${(t1-t0).toFixed(2)} ms`;
+   animate(path.reverse()); return;
+  }
+
+  for(let m of moves(c.s)){
+   let ns=apply(c.s,m),k=key(ns),ng=c.g+1;
+   if(!best.has(k)||ng<best.get(k)){
+    best.set(k,ng);
+    open.push({s:ns,g:ng,p:c});
+   }
+  }
+ }
+}
+</script>
+</body>
+</html>
